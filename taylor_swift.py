@@ -58,9 +58,11 @@ TSIGNATURE_DICT = {
     5: "5/4",
     6: "6/4",
     7: "7/4",
+    1: "1/4"
 }
 
-ALBUM_LIST = ["Midnights (The Til Dawn Edition)", 
+ALBUM_LIST = ["THE TORTURED POETS DEPARTMENT: THE ANTHOLOGY",
+              "Midnights (The Til Dawn Edition)", 
               "evermore (deluxe version)", 
               "folklore (deluxe version)", 
               "Lover", "reputation", 
@@ -88,29 +90,31 @@ additional_tracks_ids = {
 
 ##################################################################################
 ### ------------------------------ Get all albums ---------------------------- ###
-response = requests.get(BASE_URL + 'artists/' + ARTIST_ID + '/albums', 
-                 headers=headers, 
-                 params={'include_groups': 'album', 'limit': 50})
-json_response = response.json()
+def get_taylors_albums():
+    response = requests.get(BASE_URL + 'artists/' + ARTIST_ID + '/albums', 
+                    headers=headers, 
+                    params={'include_groups': 'album', 'limit': 50})
+    json_response = response.json()
 
-for album in json_response['items']:
-    print(album['name'], ' - ', album['release_date'])
+    for album in json_response['items']:
+        print(album['name'], ' - ', album['release_date'])
 ##################################################################################
 
 """
 -------------------------------------------------
     We're interested in the following albums:
 -------------------------------------------------
-Midnights (The Til Dawn Edition)  ---  2023-05-26
-evermore (deluxe version)  ----------  2021-01-07
-folklore (deluxe version)  ----------  2020-08-18
-Lover  ------------------------------  2019-08-23
-reputation  -------------------------  2017-11-10
-1989 (Taylor's Version) [Deluxe]  ---  2023-10-27
-Red (Taylor's Version)  -------------  2021-11-12
-Speak Now (Taylor's Version)  -------  2023-07-07
-Fearless (Taylor's Version)  --------  2021-04-09
-Taylor Swift  -----------------------  2006-10-24
+THE TORTURED POETS DEPARTMENT: THE ANTHOLOGY  -  2024-04-19
+Midnights (The Til Dawn Edition)  -------------  2023-05-26
+evermore (deluxe version)  --------------------  2021-01-07
+folklore (deluxe version)  --------------------  2020-08-18
+Lover  ----------------------------------------  2019-08-23
+reputation  -----------------------------------  2017-11-10
+1989 (Taylor's Version) [Deluxe]  -------------  2023-10-27
+Red (Taylor's Version)  -----------------------  2021-11-12
+Speak Now (Taylor's Version)  -----------------  2023-07-07
+Fearless (Taylor's Version)  ------------------  2021-04-09
+Taylor Swift  ---------------------------------  2006-10-24
 """
 
 ##################################################################################
@@ -124,7 +128,7 @@ Taylor Swift  -----------------------  2006-10-24
 5. Export dataframe to csv to use it later.
 """
 
-data = []   # will hold all track info
+data = []
 track_trimmed_list = [] # to keep track of duplicates
 
 response = requests.get(BASE_URL + 'artists/' + ARTIST_ID + '/albums', 
@@ -141,8 +145,10 @@ for album in json_response['items']:
         track_response = requests.get(BASE_URL + 'albums/' + album['id'] + '/tracks', headers=headers)
         tracks = track_response.json()['items']
         for track in tracks:
+            # print(track)
             track_response = requests.get(BASE_URL + 'audio-features/' + track['id'], headers=headers)
             track_response = track_response.json()
+            # print(track_response)
             track_name = track['name']
             track_trimmed = track_name.split("(")[0]
             # Do not include duplicate tracks
@@ -224,7 +230,7 @@ for track_id in additional_tracks_ids:
 
 df = pd.DataFrame(data)
 df['release_date'] = pd.to_datetime(df['release_date'])
-df.to_csv("taylor_swift_songs.csv", index=False)
+df.to_csv("taylor_swift_songs_2024-06-01.csv", index=False)
 print(df.head())
 
 ##################################################################################
